@@ -17,15 +17,15 @@ editor_camera = EditorCamera(enabled=False, ignore_paused=True)
 ground = Entity(model="plane", collider="box", scale=16384, texture="grass", texture_scale=(4, 4), position=(0, -10, 0))
 BoxCollider(world, ground, scale=(8192, 20, 8192))
 
-
 tank = FirstPersonController(model=r"L333_Tank\L333_Tank.obj", z=-10, origin_y=-.5, speed=512, collider="box",
                              texture=r"L333_Tank\material11.png", height=80, on_cooldown=False)
 tank_hitbox = Entity(model="cube", color=color.black)
 tank_collider = BoxCollider(world, tank_hitbox, mass=100, scale=(250, 140, 175))
-
-for i in range(32):
-    test_cube = Entity(model="cube", color=color.red, scale=(200, 200, 200), position=((i * 200), 1000, 0))
-    BoxCollider(world=world, entity=test_cube, mass=100, scale=(100, 100, 100))
+for n in range(6):
+    for i in range(32):
+        test_cube = Entity(model="cube", color=color.red, scale=(200, 200, 200),
+                           position=((i * 200), 1000 + (n * 200), 0))
+        BoxCollider(world=world, entity=test_cube, mass=100, scale=(100, 100, 100))
 
 
 def update():
@@ -44,7 +44,7 @@ def shoot():
         ursfx([(0.0, 0, 0), (0.1, 0.9), (0.15, 0.75), (0.3, 0.14), (0.6, 0.0)], volume=0.5, wave="sine",
               pitch=random.uniform(-13, -12), pitch_change=-12, speed=3.0)
         Bullet()
-        invoke(setattr, tank,'on_cooldown', False, delay=.6)
+        invoke(setattr, tank, 'on_cooldown', False, delay=.5)
 
 
 def pause_input(key):
@@ -67,12 +67,14 @@ class Bullet(Entity):
         self.rotation += tank.camera_pivot.rotation
         self.look_at_2d(tank.position)
         self.bullet_hitbox = Entity(model="cube", color=color.black)
-        self.bullet_collider = BoxCollider(world, self.bullet_hitbox, scale=(25,12,50))
+        self.bullet_collider = BoxCollider(world, self.bullet_hitbox, scale=(25, 12, 50))
+
     def update(self):
         self.bullet_collider.position = self.position
         self.bullet_collider.rotation = self.rotation
         self.bullet_collider.position = self.position
         self.position += self.forward * time.dt * 80
+
 
 pause_handler = Entity(ignore_paused=True, input=pause_input)
 
