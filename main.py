@@ -9,23 +9,24 @@ from ursina.prefabs.ursfx import ursfx
 game = Ursina()
 world = BulletWorld()
 Debugger(world, wireframe=True)
-world.setGravity(Vec3(0, -9.81, 0))
+world.setGravity(Vec3(0, -1962.6, 0))
 
 Entity.default_shader = lit_with_shadows_shader
 
 editor_camera = EditorCamera(enabled=False, ignore_paused=True)
 ground = Entity(model="plane", collider="box", scale=16384, texture="grass", texture_scale=(4, 4), position=(0, -10, 0))
-BoxCollider(world, ground, scale=(8192, 20, 8192))
+BoxCollider(world, ground, scale=(8192, 10, 8192))
 
-tank = FirstPersonController(model=r"L333_Tank\L333_Tank.obj", z=-10, origin_y=-.5, speed=512, collider="box",
+tank = FirstPersonController(model=r"L333_Tank\L333_Tank.obj", z=1000, origin_y=1000, speed=512, collider="box",
                              texture=r"L333_Tank\material11.png", height=80, on_cooldown=False)
 tank_hitbox = Entity(model="cube", color=color.black)
 tank_collider = BoxCollider(world, tank_hitbox, mass=100, scale=(250, 140, 175))
-for n in range(6):
-    for i in range(32):
-        test_cube = Entity(model="cube", color=color.red, scale=(200, 200, 200),
-                           position=((i * 200), 1000 + (n * 200), 0))
-        BoxCollider(world=world, entity=test_cube, mass=100, scale=(100, 100, 100))
+for i in range(6):
+    for n in range(10):
+        for z in range(6):
+            test_cube = Entity(model="cube", texture=r"brick.jpg", color=color.red, scale=(200, 200, 200),
+                           position=((i * 200) + 500, 240 + (n * 200),(z * 200)))
+            BoxCollider(world=world, entity=test_cube, mass=1, scale=(99, 99, 99))
 
 
 def update():
@@ -35,7 +36,6 @@ def update():
     tank_collider.rotation = Vec3(0, 0, 0)
     if held_keys['left mouse']:
         shoot()
-    print((tank.rotation_x, tank.rotation_y, tank.rotation_z))
 
 
 def shoot():
@@ -45,6 +45,7 @@ def shoot():
               pitch=random.uniform(-13, -12), pitch_change=-12, speed=3.0)
         Bullet()
         invoke(setattr, tank, 'on_cooldown', False, delay=.5)
+        world.setGravity(Vec3(500,500,500))
 
 
 def pause_input(key):
@@ -61,19 +62,19 @@ def pause_input(key):
 
 class Bullet(Entity):
     def __init__(self):
-        super().__init__(model="cube", scale=(50, 25, 100), color=color.black, speed=10, collider="box")
+        super().__init__(model="cube", scale=(50, 50, 100), color=color.black, speed=10, collider="box")
         self.position = tank.position + Vec3(0, 300, 0)
         self.rotation = tank.rotation_getter()
         self.rotation += tank.camera_pivot.rotation
         self.look_at_2d(tank.position)
         self.bullet_hitbox = Entity(model="cube", color=color.black)
-        self.bullet_collider = BoxCollider(world, self.bullet_hitbox, scale=(25, 12, 50))
+        self.bullet_collider = BoxCollider(world, self.bullet_hitbox, scale=(90, 90, 100))
 
     def update(self):
         self.bullet_collider.position = self.position
         self.bullet_collider.rotation = self.rotation
         self.bullet_collider.position = self.position
-        self.position += self.forward * time.dt * 80
+        self.position += self.forward * time.dt * 9999999
 
 
 pause_handler = Entity(ignore_paused=True, input=pause_input)
